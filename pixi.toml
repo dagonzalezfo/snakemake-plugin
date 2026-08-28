@@ -14,6 +14,8 @@ python = ">=3.14.7,<3.15"
 snakedeploy = ">=0.16.2, <0.17"
 snakemake-interface-common = ">=1.23.0, <2"
 snakemake-interface-software-deployment-plugins = ">=0.18.6, <0.19"
+eessi = ">=0.1.1, <0.2"
+click = ">=8.5.0, <9"
 
 [feature.dev.pypi-dependencies]
 ruff = "*"
