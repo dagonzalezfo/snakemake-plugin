@@ -1,0 +1,33 @@
+[workspace]
+authors = ["Danilo Gonzalez <dagonzalezfo@gmail.com>"]
+channels = ["conda-forge"]
+name = "snakemake-software-deployment-plugin-eessi"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = ">=3.14.7,<3.15"
+
+[pypi-dependencies]
+snakedeploy = ">=0.16.2, <0.17"
+snakemake-interface-common = ">=1.23.0, <2"
+snakemake-interface-software-deployment-plugins = ">=0.18.6, <0.19"
+
+[feature.dev.pypi-dependencies]
+ruff = "*"
+pytest = "*"
+pytest-cov = "*"
+pyrefly = "*"
+twine = "*"
+build = "*"
+
+[feature.dev.tasks]
+lint = "ruff check src tests"
+format = "ruff format src tests"
+typecheck = "pyrefly check src tests"
+coverage-report = "coverage report -m"
+test = "pytest --cov=snakemake_software_deployment_plugin_eessi --cov-report=xml:coverage-report/coverage.xml --cov-report=term-missing tests/test_plugin.py"
+build = "python -m build"
+check-build = { cmd = "python -m twine check dist/*", depends-on = ["build"] }
