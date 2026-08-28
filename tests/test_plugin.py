@@ -5,10 +5,13 @@ from snakemake_interface_software_deployment_plugins.tests import (
 from snakemake_interface_software_deployment_plugins import (
     EnvSpecBase,
     EnvBase,
+    ShellExecutable,
 )
 from snakemake_interface_software_deployment_plugins.settings import (
     SoftwareDeploymentSettingsBase,
 )
+
+from snakemake_software_deployment_plugin_eessi import Env, EnvSpec, SoftwareDeploymentSettings
 
 
 # There can be multiple subclasses of SoftwareDeploymentProviderBase here.
@@ -17,28 +20,32 @@ from snakemake_interface_software_deployment_plugins.settings import (
 # within, and, if applicable, environment deployment and archiving.
 class TestSoftwareDeployment(TestSoftwareDeploymentBase):
     __test__ = True  # activate automatic testing
-    # optional, default is "bash" change if your test suite requires a different
-    # shell or you want to have multiple instance of this class testing various shells
-    shell_executable = "bash"
+    # Use ShellExecutable object for shell_executable
+    shell_executable = ShellExecutable("bash", args=["-l"], command_arg="-c")
 
     def get_env_spec(self) -> EnvSpecBase:
-        # If the software deployment provider does not support deployable environments,
-        # this method should return an existing environment spec that can be used
-        # for testing
-        ...
+        # Return an EESSI EnvSpec with common modules for testing
+        # These should be modules available in EESSI 2023.06
+        return EnvSpec(names=["GCC/12.2.0", "Python/3.10.8"])
 
     def get_env_cls(self) -> Type[EnvBase]:
-        # Return the environment class that should be tested.
-        ...
+        # Return the Env class from the EESSI plugin to be tested
+        return Env
 
-    def get_software_deployment_provider_settings(
-        self,
-    ) -> Optional[SoftwareDeploymentSettingsBase]:
-        # If your plugin has settings, return a valid settings object here.
-        # Otherwise, return None.
-        ...
+    def get_settings(self) -> Optional[SoftwareDeploymentSettingsBase]:
+        # Return EESSI plugin settings
+        # myparam is optional, so we can set it to None
+        return SoftwareDeploymentSettings(myparam=None)
+
+    def get_settings_cls(self) -> Optional[Type[SoftwareDeploymentSettingsBase]]:
+        # Return the settings class
+        return SoftwareDeploymentSettings
 
     def get_test_cmd(self) -> str:
-        # Return a test command that should be executed within the environment
-        # with exit code 0 (i.e. without error).
-        ...
+        # Return a simple test command that should work in the EESSI environment
+        # This command will be executed within the loaded modules
+        return "python --version"
+
+    def get_contained_executable(self) -> str:
+        # Return an executable that should be available in the environment
+        return "python"
