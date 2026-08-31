@@ -1,4 +1,5 @@
 from typing import Optional, Type
+import pytest
 from snakemake_interface_software_deployment_plugins.tests import (
     TestSoftwareDeploymentBase,
 )
@@ -10,6 +11,7 @@ from snakemake_interface_software_deployment_plugins import (
 from snakemake_interface_software_deployment_plugins.settings import (
     SoftwareDeploymentSettingsBase,
 )
+from snakemake_interface_common.exceptions import WorkflowError  # noqa
 
 from snakemake_software_deployment_plugin_eessi import Env, EnvSpec, SoftwareDeploymentSettings
 
@@ -24,9 +26,10 @@ class TestSoftwareDeployment(TestSoftwareDeploymentBase):
     shell_executable = ShellExecutable("bash", args=["-l"], command_arg="-c")
 
     def get_env_spec(self) -> EnvSpecBase:
-        # Return an EESSI EnvSpec with common modules for testing
-        # These should be modules available in EESSI 2023.06
-        return EnvSpec(names=["GCC/12.2.0", "Python/3.10.8"])
+         # Return an EESSI EnvSpec with common modules for testing
+         # These should be modules available in EESSI 2023.06
+         # return EnvSpec(names=["GCC/12.2.0"])
+        return EnvSpec(names=["GCC/45c.2.0", "Python/3.11.4"])
 
     def get_env_cls(self) -> Type[EnvBase]:
         # Return the Env class from the EESSI plugin to be tested
@@ -44,7 +47,7 @@ class TestSoftwareDeployment(TestSoftwareDeploymentBase):
     def get_test_cmd(self) -> str:
         # Return a simple test command that should work in the EESSI environment
         # This command will be executed within the loaded modules
-        return "python --version"
+        return "ml GCC/12.2.0 && gcc --version"
 
     def get_contained_executable(self) -> str:
         # Return an executable that should be available in the environment
