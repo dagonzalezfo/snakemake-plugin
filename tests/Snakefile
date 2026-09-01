@@ -1,0 +1,10 @@
+rule all:
+    input:
+        "results/gcc_version.txt"
+rule test_eessi_module:
+    output:
+        "results/gcc_version.txt"
+    software:
+        eessi(names=["GCC/12.2.0"])
+    shell:
+        "gcc --version > {output}"

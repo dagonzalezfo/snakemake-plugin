@@ -7,6 +7,8 @@ version = "0.1.0"
 
 [tasks]
 
+[environments]
+dev=['dev']
 [dependencies]
 python = ">=3.14.7,<3.15"
 
@@ -18,12 +20,15 @@ eessi = ">=0.1.1, <0.2"
 click = ">=8.5.0, <9"
 
 [feature.dev.pypi-dependencies]
+hatchling = "*"
 ruff = "*"
 pytest = "*"
 pytest-cov = "*"
 pyrefly = "*"
 twine = "*"
 build = "*"
+snakemake = { git = "https://github.com/snakemake/snakemake.git", rev = "2d502d2c6828e1639c21743c812a7e70d3044135" }
+snakemake-software-deployment-plugin-eessi = { path = ".", editable = true }
 
 [feature.dev.tasks]
 lint = "ruff check src tests"
@@ -31,5 +36,6 @@ format = "ruff format src tests"
 typecheck = "pyrefly check src tests"
 coverage-report = "coverage report -m"
 test = "pytest --cov=snakemake_software_deployment_plugin_eessi --cov-report=xml:coverage-report/coverage.xml --cov-report=term-missing tests/test_plugin.py"
+snakemake-test = "snakemake --snakefile tests/Snakefile --sdm eessi --cores 1 --forceall"
 build = "python -m build"
 check-build = { cmd = "python -m twine check dist/*", depends-on = ["build"] }

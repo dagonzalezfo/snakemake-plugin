@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import shlex
 from typing import Iterable, Optional
 from snakemake_interface_software_deployment_plugins.settings import (
     SoftwareDeploymentSettingsBase,
@@ -6,8 +7,6 @@ from snakemake_interface_software_deployment_plugins.settings import (
 )
 from snakemake_interface_software_deployment_plugins import (
     EnvBase,
-    DeployableEnvBase,
-    ArchiveableEnvBase,
     EnvSpecBase,
     SoftwareReport,
 )
@@ -45,10 +44,10 @@ class SoftwareDeploymentSettings(SoftwareDeploymentSettingsBase):
             "env_var": False,
             # Optionally specify a function that parses the value given by the user.
             # This is useful to create complex types from the user input.
-            "parse_func": ...,
+            #"parse_func": ...,
             # If a parse_func is specified, you also have to specify an unparse_func
             # that converts the parsed value back to a string.
-            "unparse_func": ...,
+            # "unparse_func": ...,
             # Optionally specify that setting is required when the executor is in use.
             "required": True,
             # Optionally specify multiple args with "nargs": "+"
@@ -68,7 +67,7 @@ common_settings = CommonSettings(
     provides='eessi',
 )
 
-
+@dataclass(eq=False)
 class EnvSpec(EnvSpecBase):
     # This class should implement something that describes an existing or to be created
     # environment.
@@ -85,10 +84,22 @@ class EnvSpec(EnvSpecBase):
     # (of type Path), when checking for existence. In case errors shall be thrown,
     # the attribute EnvSpecSourceFile.path_or_uri (of type str) can be used to show
     # the original value passed to the EnvSpec.
+    names: tuple[str, ...] | list[str]
+
+    def __post_init__(self) -> None:
+        self.names = tuple(self.names)
 
     @classmethod
     def identity_attributes(cls) -> Iterable[str]:
         yield "names"
+
+    @classmethod
+    def source_path_attributes(cls) -> Iterable[str]:
+        # No source paths in EESSI plugin
+        return iter([])
+
+    def __str__(self) -> str:
+        return f"EESSI environment with modules: {', '.join(self.names)}"
 
 
 
@@ -97,7 +108,7 @@ class EnvSpec(EnvSpecBase):
 # If your environment cannot be archived or deployed, remove the respective methods
 # and the respective base classes.
 # All errors should be wrapped with snakemake-interface-common.errors.WorkflowError
-class Env(EnvBase, DeployableEnvBase, ArchiveableEnvBase):
+class Env(EnvBase):
     # For compatibility with future changes, you should not overwrite the __init__
     # method. Instead, use __post_init__ to set additional attributes and initialize
     # futher stuff.
@@ -105,31 +116,38 @@ class Env(EnvBase, DeployableEnvBase, ArchiveableEnvBase):
     def __post_init__(self) -> None:
         # This is optional and can be removed if not needed.
         # Alternatively, you can e.g. prepare anything or set additional attributes.
-        self.check()
+        self.check_eessi()
 
     # The decorator ensures that the decorated method is only called once
     # in case multiple environments of the same kind are created.
     @EnvBase.once
     def check_eessi(self) -> None:
-        try eessi check
-        raise WorkflowError("EESSI has not been correctly setup, check <link to docu>")
-        error and exception
-        # to do this, we need to confirm if EESSI check return exit 0, 1 or we need to parse/capture it in other way. 
-        # if this pass, we can check if the module is available, to do so we need to eval the eessi like command, and check the module with ml spider or equivalent
-        try res = self.run_cmd("eval "$(eessi init)"" && module spider {' '.join(shlex.quote(name) for name in self.spec.names)} )
-        raise WorkflowError ("The requested modules are not available, verify it")
+        # eessi check always returns exit 0, so we capture output and parse for errors
+        result = self.run_cmd("eessi check", capture_output=True, text=True)
+        output = (result.stdout or "") + (result.stderr or "")
+        if "Error" in output:
+            raise WorkflowError("EESSI has not been correctly setup, check <link to docu>")
+        # Store the complete output for hashing after confirming that EESSI is setup correctly
+        self.eessi_check_output = output
+        # Check if the module is available, to do so we need to eval the eessi like command, and check the module with ml spider 
+        try:
+            res = self.run_cmd(f"source /cvmfs/software.eessi.io/versions/2023.06/init/bash > /dev/null 2>&1 && module spider {' '.join(shlex.quote(name) for name in self.spec.names)}")
+        except Exception:
+            raise WorkflowError("The requested modules are not available, verify it")
         
 
     def decorate_shellcmd(self, cmd: str) -> str:
         # Decorate given shell command such that it runs within the environment. #check syntax
-        return f"eval eessi init && module purge && module load {' '.join(shlex.quote(name) for name in self.spec.names)} && {cmd}"
+        return f"source /cvmfs/software.eessi.io/versions/2023.06/init/bash > /dev/null 2>&1 && module purge && module load {' '.join(shlex.quote(name) for name in self.spec.names)} && {cmd}"
 
     def record_hash(self, hash_object) -> None:
         # Update given hash such that it changes whenever the environment
         # could potentially contain a different set of software (in terms of versions or
         # packages). Use self.spec (containing the corresponding EnvSpec object)
         # to determine the hash.
-        hash_object.update(",".join(self.spec.names.encode())) # here we should add the eessi check output and the modules
+        # Include complete eessi check output and module names
+        hash_string = f"{self.eessi_check_output}:{','.join(self.spec.names)}"
+        hash_object.update(hash_string.encode())
 
     def report_software(self) -> Iterable[SoftwareReport]:
         # Report the software contained in the environment. This should be a list of
@@ -138,10 +156,21 @@ class Env(EnvBase, DeployableEnvBase, ArchiveableEnvBase):
         # less important technical dependency. This allows Snakemake's report to
         # hide those for clarity. In case of containers, it is also valid to
         # return the container URI as a "software".
-        # Return an empty tuple () if no software can be reported.
-        # Here we should add eessi version and the set of modules
-        return ()
-
+        # Report EESSI version and modules
+        eessi_version = "2023.06" #Hardocoded for now, but could be retrieved from the eessi check output if needed
+        yield SoftwareReport(name="EESSI", version=eessi_version)
+        # Report each module as secondary software
+        for module_name in self.spec.names:
+            yield SoftwareReport(name=module_name, is_secondary=True)
+    
+    def contains_executable(self, name: str) -> bool:
+        # Check if the executable is available in the environment.
+        try:
+            result = self.run_cmd(f"which {name}")
+            return result.returncode == 0
+        except Exception:
+            return False
+    
     # The methods below are optional. Remove them if not needed and adjust the
     # base classes above.
 
