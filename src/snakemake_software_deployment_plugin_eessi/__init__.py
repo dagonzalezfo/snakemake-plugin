@@ -67,7 +67,7 @@ common_settings = CommonSettings(
     provides='eessi',
 )
 
-@dataclass
+@dataclass(eq=False)
 class EnvSpec(EnvSpecBase):
     # This class should implement something that describes an existing or to be created
     # environment.
@@ -84,7 +84,10 @@ class EnvSpec(EnvSpecBase):
     # (of type Path), when checking for existence. In case errors shall be thrown,
     # the attribute EnvSpecSourceFile.path_or_uri (of type str) can be used to show
     # the original value passed to the EnvSpec.
-    names: Iterable[str]
+    names: tuple[str, ...] | list[str]
+
+    def __post_init__(self) -> None:
+        self.names = tuple(self.names)
 
     @classmethod
     def identity_attributes(cls) -> Iterable[str]:
@@ -161,8 +164,12 @@ class Env(EnvBase):
             yield SoftwareReport(name=module_name, is_secondary=True)
     
     def contains_executable(self, name: str) -> bool:
-        # Dummy abstract method, needed for tests. 
-        return True
+        # Check if the executable is available in the environment.
+        try:
+            result = self.run_cmd(f"which {name}")
+            return result.returncode == 0
+        except Exception:
+            return False
     
     # The methods below are optional. Remove them if not needed and adjust the
     # base classes above.

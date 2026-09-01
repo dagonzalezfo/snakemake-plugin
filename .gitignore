@@ -1,3 +1,17 @@
 # pixi environments
 .pixi/*
 !.pixi/config.toml
+
+# Snakemake / test generated files
+.snakemake/
+results/
+logs/
+*.log
+*.err
+*.out
+coverage-report/
+.coverage
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo

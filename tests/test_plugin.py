@@ -29,7 +29,7 @@ class TestSoftwareDeployment(TestSoftwareDeploymentBase):
          # Return an EESSI EnvSpec with common modules for testing
          # These should be modules available in EESSI 2023.06
          # return EnvSpec(names=["GCC/12.2.0"])
-        return EnvSpec(names=["GCC/45c.2.0", "Python/3.11.4"])
+        return EnvSpec(names=["GCC/12.2.0"])
 
     def get_env_cls(self) -> Type[EnvBase]:
         # Return the Env class from the EESSI plugin to be tested

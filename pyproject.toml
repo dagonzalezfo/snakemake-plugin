@@ -32,3 +32,7 @@ editable = true
 
 [tool.pixi.environments.dev]
 features = [ "dev",]
+
+[project.entry-points."snakemake.software_deployment_plugins"]
+eessi = "snakemake_software_deployment_plugin_eessi"
+
