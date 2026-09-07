@@ -50,5 +50,3 @@ pixi run --environment dev snakemake --snakefile tests/Snakefile --sdm eessi --c
 - It validates the environment with `eessi check` and module availability checks.
 - The repository includes a small end-to-end Snakefile in `tests/` for verification.
 =======
-# snakemake-plugin
-snakemake plugin for EESSI
