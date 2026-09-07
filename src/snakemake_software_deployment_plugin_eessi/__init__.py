@@ -126,7 +126,7 @@ class Env(EnvBase):
         result = self.run_cmd("eessi check", capture_output=True, text=True)
         output = (result.stdout or "") + (result.stderr or "")
         if "Error" in output:
-            raise WorkflowError("EESSI has not been correctly setup, check <link to docu>")
+            raise WorkflowError("EESSI has not been correctly setup, check https://www.eessi.io/docs/getting_access/native_installation/")
         # Store the complete output for hashing after confirming that EESSI is setup correctly
         self.eessi_check_output = output
         # Check if the module is available, to do so we need to eval the eessi like command, and check the module with ml spider 

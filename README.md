@@ -16,9 +16,10 @@ software deployment plugin API.
 This plugin depends on the Snakemake feature branch that includes software deployment
 plugins support
 
+- EESSI configured using native installation
 - GitHub branch: https://github.com/snakemake/snakemake/tree/feat/software-deployment-plugins
 - PR [#3339](https://github.com/snakemake/snakemake/pull/3339)
-- The project uses a pinned commit in `pixi.toml` for reproducible builds.
+- The project uses a pinned commit in `pixi.toml` for reproducible builds
 
 ## Install
 
