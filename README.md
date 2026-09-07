@@ -49,3 +49,6 @@ pixi run --environment dev snakemake --snakefile tests/Snakefile --sdm eessi --c
 - The plugin sources the EESSI bash init script before loading modules.
 - It validates the environment with `eessi check` and module availability checks.
 - The repository includes a small end-to-end Snakefile in `tests/` for verification.
+=======
+# snakemake-plugin
+snakemake plugin for EESSI
