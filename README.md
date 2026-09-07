@@ -14,9 +14,10 @@ software deployment plugin API.
 ## Requirements
 
 This plugin depends on the Snakemake feature branch that includes software deployment
-plugins support:
+plugins support
 
-- GitHub: https://github.com/snakemake/snakemake/tree/feat/software-deployment-plugins
+- GitHub branch: https://github.com/snakemake/snakemake/tree/feat/software-deployment-plugins
+- PR [#3339](https://github.com/snakemake/snakemake/pull/3339)
 - The project uses a pinned commit in `pixi.toml` for reproducible builds.
 
 ## Install
