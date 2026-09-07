@@ -164,48 +164,5 @@ class Env(EnvBase):
             yield SoftwareReport(name=module_name, is_secondary=True)
     
     def contains_executable(self, name: str) -> bool:
-        # Check if the executable is available in the environment.
-        try:
-            result = self.run_cmd(f"which {name}")
-            return result.returncode == 0
-        except Exception:
-            return False
-    
-    # The methods below are optional. Remove them if not needed and adjust the
-    # base classes above.
-
-#    async def deploy(self) -> None:
-#        # Remove method if not deployable!
-#        # Deploy the environment to self.deployment_path, using self.spec
-#        # (the EnvSpec object).
-#
-#        # When issuing shell commands, the environment should use
-#        # self.run_cmd(cmd: str) -> subprocess.CompletedProcess in order to ensure that
-#        # it runs within eventual parent environments (e.g. a container or an env
-#        # module).
-#        ...
-#
-#    def is_deployment_path_portable(self) -> bool:
-#        # Remove method if not deployable!
-#        # Return True if the deployment is portable, i.e. can be moved to a
-#        # different location without breaking the environment. Return False otherwise.
-#        # For example, with conda, environments are not portable in that sense (cannot
-#        # be moved around, because deployed packages contain hardcoded absolute
-#        # RPATHs).
-#        ...
-#
-#    def remove(self) -> None:
-#        # Remove method if not deployable!
-#        # Remove the deployed environment from self.deployment_path and perform
-#        # any additional cleanup.
-#        ...
-#
-#    async def archive(self) -> None:
-#        # Remove method if not archiveable!
-#        # Archive the environment to self.archive_path.
-#
-#        # When issuing shell commands, the environment should use
-#        # self.run_cmd(cmd: str) -> subprocess.CompletedProcess in order to ensure that
-#        # it runs within eventual parent environments (e.g. a container or an env
-#        # module).
-#        ...
+        # Dummy function, need to be defined by current plugin interface package
+        return True  
