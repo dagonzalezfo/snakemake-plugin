@@ -1,5 +1,5 @@
 [workspace]
-authors = ["Danilo Gonzalez <dagonzalezfo@gmail.com>"]
+authors = ["Danilo Gonzalez <danilo.gonzalez@doitnowgroup.com>"]
 channels = ["conda-forge"]
 name = "snakemake-software-deployment-plugin-eessi"
 platforms = ["linux-64"]
