@@ -13,7 +13,7 @@ build-backend = "hatchling.build"
 requires = [ "hatchling",]
 
 [project.urls]
-Repository = "https://github.com/your/plugin"
+Repository = "https://github.com/EESSI/snakemake-plugin"
 Documentation = "https://snakemake.github.io/snakemake-plugin-catalog/plugins/software-deployment/eessi.html"
 
 [tool.pixi.workspace]

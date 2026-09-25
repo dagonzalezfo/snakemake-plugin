@@ -32,25 +32,8 @@ class SoftwareDeploymentSettings(SoftwareDeploymentSettingsBase):
         default=None,
         metadata={
             "help": "This plugin would be enable to use EESSI provided appstack",
-            # Optionally request that setting is also available for specification
-            # via an environment variable. The variable will be named automatically as
-            # via an environment variable. The variable will be named automatically as
-            # SNAKEMAKE_<software-deployment-plugin-name>_<param-name>, all upper case.
-            # This mechanism should only be used for passwords, usernames, and other
-            # credentials.
-            # For other items, we rather recommend to let people use a profile
-            # for setting defaults
-            # (https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles).
             "env_var": False,
-            # Optionally specify a function that parses the value given by the user.
-            # This is useful to create complex types from the user input.
-            #"parse_func": ...,
-            # If a parse_func is specified, you also have to specify an unparse_func
-            # that converts the parsed value back to a string.
-            # "unparse_func": ...,
-            # Optionally specify that setting is required when the executor is in use.
             "required": True,
-            # Optionally specify multiple args with "nargs": "+"
         },
     )
 
@@ -137,7 +120,7 @@ class Env(EnvBase):
         
 
     def decorate_shellcmd(self, cmd: str) -> str:
-        # Decorate given shell command such that it runs within the environment. #check syntax
+        # Decorate given shell command such that it runs within the environment.
         return f"source /cvmfs/software.eessi.io/versions/2023.06/init/bash > /dev/null 2>&1 && module purge && module load {' '.join(shlex.quote(name) for name in self.spec.names)} && {cmd}"
 
     def record_hash(self, hash_object) -> None:

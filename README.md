@@ -13,13 +13,9 @@ software deployment plugin API.
 
 ## Requirements
 
-This plugin depends on the Snakemake feature branch that includes software deployment
-plugins support
-
+This plugin requires:
+- Snakemake >=9.27.0, which includes software deployment plugins support.
 - EESSI configured using native installation
-- GitHub branch: https://github.com/snakemake/snakemake/tree/feat/software-deployment-plugins
-- PR [#3339](https://github.com/snakemake/snakemake/pull/3339)
-- The project uses a pinned commit in `pixi.toml` for reproducible builds
 
 ## Install
 
@@ -51,4 +47,3 @@ pixi run --environment dev snakemake --snakefile tests/Snakefile --sdm eessi --c
 - The plugin sources the EESSI bash init script before loading modules.
 - It validates the environment with `eessi check` and module availability checks.
 - The repository includes a small end-to-end Snakefile in `tests/` for verification.
-=======

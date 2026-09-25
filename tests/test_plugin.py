@@ -16,10 +16,6 @@ from snakemake_interface_common.exceptions import WorkflowError  # noqa
 from snakemake_software_deployment_plugin_eessi import Env, EnvSpec, SoftwareDeploymentSettings
 
 
-# There can be multiple subclasses of SoftwareDeploymentProviderBase here.
-# This way, you can implement multiple test scenarios.
-# For each subclass, the test suite tests the environment activation and execution
-# within, and, if applicable, environment deployment and archiving.
 class TestSoftwareDeployment(TestSoftwareDeploymentBase):
     __test__ = True  # activate automatic testing
     # Use ShellExecutable object for shell_executable
