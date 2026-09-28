@@ -13,7 +13,11 @@ from snakemake_interface_software_deployment_plugins.settings import (
 )
 from snakemake_interface_common.exceptions import WorkflowError  # noqa
 
-from snakemake_software_deployment_plugin_eessi import Env, EnvSpec, SoftwareDeploymentSettings
+from snakemake_software_deployment_plugin_eessi import (
+    Env,
+    EnvSpec,
+    SoftwareDeploymentSettings,
+)
 
 
 class TestSoftwareDeployment(TestSoftwareDeploymentBase):
@@ -22,8 +26,8 @@ class TestSoftwareDeployment(TestSoftwareDeploymentBase):
     shell_executable = ShellExecutable("bash", args=["-l"], command_arg="-c")
 
     def get_env_spec(self) -> EnvSpecBase:
-         # Return an EESSI EnvSpec with common modules for testing
-         # These should be modules available in EESSI 2023.06
+        # Return an EESSI EnvSpec with common modules for testing
+        # These should be modules available in EESSI 2023.06
         return EnvSpec(names=["GCC/12.2.0"])
 
     def get_env_cls(self) -> Type[EnvBase]:
