@@ -50,8 +50,9 @@ common_settings = CommonSettings(
     # "envmodules" instead of lmod, environment-modules, etc.
     # Snakemake will ensure that the user only activates one plugin per provided
     # kind.
-    provides='eessi',
+    provides="eessi",
 )
+
 
 @dataclass(eq=False)
 class EnvSpec(EnvSpecBase):
@@ -93,7 +94,6 @@ class EnvSpec(EnvSpecBase):
         )
 
 
-
 # Required:
 # Implementation of an environment object.
 # If your environment cannot be archived or deployed, remove the respective methods
@@ -117,7 +117,9 @@ class Env(EnvBase):
         result = self.run_cmd("eessi check", capture_output=True, text=True)
         output = (result.stdout or "") + (result.stderr or "")
         if "Error" in output:
-            raise WorkflowError("EESSI has not been correctly setup, check https://www.eessi.io/docs/getting_access/native_installation/")
+            raise WorkflowError(
+                "EESSI has not been correctly setup, check https://www.eessi.io/docs/getting_access/native_installation/"
+            )
         # Store the complete output for hashing after confirming that EESSI is setup correctly
         self.eessi_check_output = output
         try:
@@ -176,11 +178,12 @@ class Env(EnvBase):
         # hide those for clarity. In case of containers, it is also valid to
         # return the container URI as a "software".
         # Report EESSI version and modules
-        yield SoftwareReport(name="EESSI", version=self.spec.eessi_version)
+        eessi_version = "2023.06"  # Hardocoded for now, but could be retrieved from the eessi check output if needed
+        yield SoftwareReport(name="EESSI", version=eessi_version)
         # Report each module as secondary software
         for module_name in self.spec.modules:
             yield SoftwareReport(name=module_name, is_secondary=True)
-    
+
     def contains_executable(self, name: str) -> bool:
         # Dummy function, need to be defined by current plugin interface package
         return True

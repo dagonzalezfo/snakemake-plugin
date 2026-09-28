@@ -12,7 +12,11 @@ from snakemake_interface_software_deployment_plugins.settings import (
 )
 from snakemake_interface_common.exceptions import WorkflowError  # noqa
 
-from snakemake_software_deployment_plugin_eessi import Env, EnvSpec, SoftwareDeploymentSettings
+from snakemake_software_deployment_plugin_eessi import (
+    Env,
+    EnvSpec,
+    SoftwareDeploymentSettings,
+)
 
 
 class TestSoftwareDeployment(TestSoftwareDeploymentBase):
