@@ -1,8 +1,20 @@
 [project]
-dependencies = []
 name = "snakemake-software-deployment-plugin-eessi"
+description = "Snakemake software deployment plugin for EESSI environments"
+readme = "README.md"
 requires-python = ">=3.11,<4.0"
 version = "0.1.0"
+dependencies = [
+	"snakemake-interface-common>=1.23.0,<2",
+	"snakemake-interface-software-deployment-plugins>=0.19.1,<1.0",
+	"eessi>=0.1.1,<0.2",
+]
+
+[project.optional-dependencies]
+test = [
+	"pytest>=8,<10",
+	"pytest-cov>=5,<8",
+]
 
 [[project.authors]]
 name = "Danilo Gonzalez"
@@ -13,25 +25,12 @@ build-backend = "hatchling.build"
 requires = [ "hatchling",]
 
 [project.urls]
-Repository = "https://github.com/your/plugin"
+Repository = "https://github.com/EESSI/snakemake-plugin"
 Documentation = "https://snakemake.github.io/snakemake-plugin-catalog/plugins/software-deployment/eessi.html"
-
-[tool.pixi.workspace]
-channels = [ "conda-forge", "bioconda",]
-platforms = [ "linux-64",]
-
-[tool.pixi.tasks]
 
 [tool.coverage.report]
 exclude_lines = [ "pass", "\\.\\.\\.",]
 fail_under = 90.0
-
-[tool.pixi.pypi-dependencies.snakemake_software_deployment_plugin_eessi]
-path = "."
-editable = true
-
-[tool.pixi.environments.dev]
-features = [ "dev",]
 
 [project.entry-points."snakemake.software_deployment_plugins"]
 eessi = "snakemake_software_deployment_plugin_eessi"

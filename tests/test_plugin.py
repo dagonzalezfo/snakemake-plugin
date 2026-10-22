@@ -1,5 +1,4 @@
 from typing import Optional, Type
-import pytest
 from snakemake_interface_software_deployment_plugins.tests import (
     TestSoftwareDeploymentBase,
 )
@@ -28,7 +27,7 @@ class TestSoftwareDeployment(TestSoftwareDeploymentBase):
     def get_env_spec(self) -> EnvSpecBase:
          # Return an EESSI EnvSpec with common modules for testing
          # These should be modules available in EESSI 2023.06
-        return EnvSpec(names=["GCC/12.2.0"])
+        return EnvSpec(modules=["GCC/12.2.0"], eessi_version="2023.06")
 
     def get_env_cls(self) -> Type[EnvBase]:
         # Return the Env class from the EESSI plugin to be tested

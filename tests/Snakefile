@@ -5,6 +5,17 @@ rule test_eessi_module:
     output:
         "results/gcc_version.txt"
     software:
-        eessi(names=["GCC/12.2.0"])
+        eessi(eessi_version="2023.06", modules=["GCC/12.2.0"])
     shell:
         "gcc --version > {output}"
+
+rule test_lmod_version_reload:
+    output:
+        "results/module_reload_warning.txt"
+    software:
+        eessi(
+            eessi_version="2023.06",
+            modules=["ASE/3.22.1-gfbf-2022b", "GROMACS/2024.4-foss-2023b"],
+        )
+    shell:
+        "printf 'Mixed-module load completed; see Snakemake output for any Lmod reload warning.\\n' > {output}"
