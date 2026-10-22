@@ -13,15 +13,19 @@ software deployment plugin API.
 
 ## Requirements
 
-This plugin requires:
-- Snakemake >=9.27.0, which includes software deployment plugins support.
+This plugin requires Snakemake with software deployment plugin support and an EESSI
+native installation.
+
 - EESSI configured using native installation
+- A Snakemake release that includes [software deployment plugin support](https://github.com/snakemake/snakemake/pull/3339)
 
-## Install
-
-```bash
-pixi install --environment dev
-```
+**Compatibility note:** Snakemake 9.27.1 does not include this support, so the
+plugin will not work with 9.27.x. As of 2026-10-22, no compatible stable release
+has been published. For development and end-to-end testing, use the merged
+Snakemake commit `91763d644db0a6051c40014fa8ffad340f7d39a0`. Installing this
+plugin does not check or upgrade the Snakemake version in the host environment.
+Do not publish a stable plugin release until the required Snakemake support is
+available in a released version.
 
 ## Example usage
 
@@ -31,7 +35,7 @@ rule test_eessi_module:
         "results/gcc_version.txt"
     threads: 1
     software:
-        "eessi(names=[\"GCC/12.2.0\"])"
+        'eessi(eessi_version="2023.06", modules=["GCC/12.2.0"])'
     shell:
         "gcc --version > {output}"
 ```
@@ -39,7 +43,7 @@ rule test_eessi_module:
 Or from the CLI:
 
 ```bash
-pixi run --environment dev snakemake --snakefile tests/Snakefile --sdm eessi --cores 1 --forceall
+snakemake --snakefile tests/Snakefile --sdm eessi --cores 1 --forceall
 ```
 
 ## Notes

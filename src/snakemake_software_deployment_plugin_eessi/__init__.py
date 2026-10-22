@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+import logging
 import shlex
 from typing import Iterable, Optional
 from snakemake_interface_software_deployment_plugins.settings import (
@@ -14,6 +15,8 @@ from snakemake_interface_software_deployment_plugins import (
 # Raise errors that will not be handled within this plugin but thrown upwards to
 # Snakemake and the user as WorkflowError.
 from snakemake_interface_common.exceptions import WorkflowError  # noqa
+
+logger = logging.getLogger("snakemake.logging")
 
 
 # Optional:
@@ -68,14 +71,16 @@ class EnvSpec(EnvSpecBase):
     # (of type Path), when checking for existence. In case errors shall be thrown,
     # the attribute EnvSpecSourceFile.path_or_uri (of type str) can be used to show
     # the original value passed to the EnvSpec.
-    names: tuple[str, ...] | list[str]
+    modules: tuple[str, ...] | list[str]
+    eessi_version: str = "2023.06"
 
     def __post_init__(self) -> None:
-        self.names = tuple(self.names)
+        self.modules = tuple(self.modules)
 
     @classmethod
     def identity_attributes(cls) -> Iterable[str]:
-        yield "names"
+        yield "modules"
+        yield "eessi_version"
 
     @classmethod
     def source_path_attributes(cls) -> Iterable[str]:
@@ -83,8 +88,10 @@ class EnvSpec(EnvSpecBase):
         return iter([])
 
     def __str__(self) -> str:
-        return f"EESSI environment with modules: {', '.join(self.names)}"
-
+        return (
+            f"EESSI {self.eessi_version} environment with modules: "
+            f"{', '.join(self.modules)}"
+        )
 
 # Required:
 # Implementation of an environment object.
@@ -114,17 +121,41 @@ class Env(EnvBase):
             )
         # Store the complete output for hashing after confirming that EESSI is setup correctly
         self.eessi_check_output = output
-        # Check if the module is available, to do so we need to eval the eessi like command, and check the module with ml spider
         try:
-            res = self.run_cmd(
-                f"source /cvmfs/software.eessi.io/versions/2023.06/init/bash > /dev/null 2>&1 && module spider {' '.join(shlex.quote(name) for name in self.spec.names)}"
+            result = self.run_cmd(
+                self._environment_command(":"),
+                capture_output=True,
+                text=True,
+                check=True,
             )
-        except Exception:
-            raise WorkflowError("The requested modules are not available, verify it")
+            module_output = (result.stdout or "") + (result.stderr or "")
+            if "The following have been reloaded with a version change:" in module_output:
+                logger.warning(
+                    "WARNING: Lmod changed module versions while loading the "
+                    f"requested EESSI modules. Proceed with caution.\n{module_output}"
+                )
+        except Exception as error:
+            raise WorkflowError(
+                f"Unable to load the requested modules from EESSI {self.spec.eessi_version} modules "
+                f"{', '.join(self.spec.modules)}. Check that the modules exist "
+                "and can be loaded together."
+            ) from error
+
+    def _environment_command(self, cmd: str) -> str:
+        init_script = (
+            "/cvmfs/software.eessi.io/versions/"
+            f"{shlex.quote(self.spec.eessi_version)}/init/bash"
+        )
+        module_load = " && ".join(
+            f"module load {shlex.quote(module)}" for module in self.spec.modules
+        ) or ":"
+        return (
+            f"source {shlex.quote(init_script)} > /dev/null 2>&1 && "
+            f"module purge && {module_load} && {cmd}"
+        )
 
     def decorate_shellcmd(self, cmd: str) -> str:
-        # Decorate given shell command such that it runs within the environment.
-        return f"source /cvmfs/software.eessi.io/versions/2023.06/init/bash > /dev/null 2>&1 && module purge && module load {' '.join(shlex.quote(name) for name in self.spec.names)} && {cmd}"
+        return self._environment_command(cmd)
 
     def record_hash(self, hash_object) -> None:
         # Update given hash such that it changes whenever the environment
@@ -132,7 +163,10 @@ class Env(EnvBase):
         # packages). Use self.spec (containing the corresponding EnvSpec object)
         # to determine the hash.
         # Include complete eessi check output and module names
-        hash_string = f"{self.eessi_check_output}:{','.join(self.spec.names)}"
+        hash_string = (
+            f"{self.eessi_check_output}:{self.spec.eessi_version}:"
+            f"{','.join(self.spec.modules)}"
+        )
         hash_object.update(hash_string.encode())
 
     def report_software(self) -> Iterable[SoftwareReport]:
@@ -143,10 +177,9 @@ class Env(EnvBase):
         # hide those for clarity. In case of containers, it is also valid to
         # return the container URI as a "software".
         # Report EESSI version and modules
-        eessi_version = "2023.06"  # Hardocoded for now, but could be retrieved from the eessi check output if needed
-        yield SoftwareReport(name="EESSI", version=eessi_version)
+        yield SoftwareReport(name="EESSI", version=self.spec.eessi_version)
         # Report each module as secondary software
-        for module_name in self.spec.names:
+        for module_name in self.spec.modules:
             yield SoftwareReport(name=module_name, is_secondary=True)
 
     def contains_executable(self, name: str) -> bool:
