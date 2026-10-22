@@ -1,0 +1,39 @@
+name: EESSI integration tests
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  test-eessi:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+
+      - name: Set up Python
+        uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package and test dependencies
+        run: >-
+          python -m pip install -e ".[test]"
+          "snakemake @ git+https://github.com/snakemake/snakemake.git@91763d644db0a6051c40014fa8ffad340f7d39a0"
+
+      - name: Mount EESSI CVMFS repository
+        uses: cvmfs-contrib/github-action-cvmfs@bc6dae3b3c00a732994bacfac8f0902a3e422c53 # v5.4
+        with:
+          cvmfs_repositories: software.eessi.io
+
+      - name: Test standard EESSI module workflow
+        run: snakemake --snakefile tests/Snakefile --sdm eessi --cores 1 --forceall test_eessi_module
+
+      - name: Test Lmod module-version warning
+        run: snakemake --snakefile tests/Snakefile --sdm eessi --cores 1 --forceall test_lmod_version_reload
+
+      - name: Run plugin interface tests
+        run: pytest --no-cov -v tests/test_plugin.py
