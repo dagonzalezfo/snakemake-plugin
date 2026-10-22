@@ -178,8 +178,7 @@ class Env(EnvBase):
         # hide those for clarity. In case of containers, it is also valid to
         # return the container URI as a "software".
         # Report EESSI version and modules
-        eessi_version = "2023.06"  # Hardocoded for now, but could be retrieved from the eessi check output if needed
-        yield SoftwareReport(name="EESSI", version=eessi_version)
+        yield SoftwareReport(name="EESSI", version=self.spec.eessi_version)
         # Report each module as secondary software
         for module_name in self.spec.modules:
             yield SoftwareReport(name=module_name, is_secondary=True)
