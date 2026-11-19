@@ -72,7 +72,7 @@ class EnvSpec(EnvSpecBase):
     # the attribute EnvSpecSourceFile.path_or_uri (of type str) can be used to show
     # the original value passed to the EnvSpec.
     modules: tuple[str, ...] | list[str]
-    eessi_version: str = "2023.06"
+    eessi_version: str = "2025.06"
 
     def __post_init__(self) -> None:
         self.modules = tuple(self.modules)
