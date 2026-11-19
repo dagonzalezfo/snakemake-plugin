@@ -144,7 +144,7 @@ class Env(EnvBase):
     def _environment_command(self, cmd: str) -> str:
         init_script = (
             "/cvmfs/software.eessi.io/versions/"
-            f"{shlex.quote(self.spec.eessi_version)}/init/bash"
+            f"{shlex.quote(self.spec.eessi_version)}/init/lmod/bash"
         )
         module_load = " && ".join(
             f"module load {shlex.quote(module)}" for module in self.spec.modules
