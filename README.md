@@ -20,12 +20,11 @@ native installation.
 - A Snakemake release that includes [software deployment plugin support](https://github.com/snakemake/snakemake/pull/3339)
 
 **Compatibility note:** Snakemake 9.27.1 does not include this support, so the
-plugin will not work with 9.27.x. As of 2026-10-22, no compatible stable release
-has been published. For development and end-to-end testing, use the merged
+plugin will not work with 9.27.x. According to Snakemake pull request [#4313](https://github.com/snakemake/snakemake/pull/4313),
+this feature will be available in Snakemake 10.0.0. For development and end-to-end testing, use the merged
 Snakemake commit `91763d644db0a6051c40014fa8ffad340f7d39a0`. Installing this
 plugin does not check or upgrade the Snakemake version in the host environment.
-Do not publish a stable plugin release until the required Snakemake support is
-available in a released version.
+Releasing the plugin depends on the Snakemake 10.0.0 release.  
 
 ## Example usage
 

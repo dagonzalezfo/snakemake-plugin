@@ -112,10 +112,10 @@ class Env(EnvBase):
     # in case multiple environments of the same kind are created.
     @EnvBase.once
     def check_eessi(self) -> None:
-        # eessi check always returns exit 0, so we capture output and parse for errors
+        # eessi check command execution (capture output and check exit code)
         result = self.run_cmd("eessi check", capture_output=True, text=True)
         output = (result.stdout or "") + (result.stderr or "")
-        if "Error" in output:
+        if result.returncode != 0 or "Error" in output:
             raise WorkflowError(
                 "EESSI has not been correctly setup, check https://www.eessi.io/docs/getting_access/native_installation/"
             )
